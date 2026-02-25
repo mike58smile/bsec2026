@@ -3,5 +3,6 @@
 
 #define SINE_OUT_PIN 9  // PWM-capable pin for sine wave output
 #define LED_PIN      13 // Built-in LED pin
+#define LED2_PIN     12 // Secondary LED pin
 
 #endif

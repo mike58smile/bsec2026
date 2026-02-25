@@ -1,92 +1,53 @@
 #include <Arduino.h>
+#include <avr/interrupt.h>
 #include "pinout.h"
+#include "TimedEvent.h"
 
-float angle = 0.0;
+// ---------- LED toggle callbacks (ISR-safe: only digitalWrite) ----------
+void setupTimer2() {
+  cli();
+  TCCR2A = 0;
+  TCCR2B = 0;
+  TCNT2  = 0;
+  OCR2A  = 249;                   // 16 MHz / 64 / 250 = 1 kHz → 1 ms
+  TCCR2A |= (1 << WGM21);        // CTC mode
+  TCCR2B |= (1 << CS22);         // prescaler 64
+  TIMSK2 |= (1 << OCIE2A);       // enable compare match A interrupt
+  sei();
+}
+volatile bool led1State = false;
+volatile bool led2State = false;
 
-class TimedEvent
-{
-public:
-  void set_timed_event(unsigned long time, void (*callback)()){
-    m_event_period = time;
-    event_callback = callback;
-  }
-
-  void check_event(){
-    if(millis() - event_time >= m_event_period){
-      event_time = millis();
-      event_callback();
-    }
-  }
-
-private:
-  unsigned long event_time;
-  unsigned long m_event_period;
-  void (*event_callback)() = nullptr;
-};
-
-class toggle_led
-{
-public:
-  toggle_led(uint8_t led_pin){
-    m_led_pin = led_pin;
-  }
-
-  void callback(){
-    m_led_state = !m_led_state;
-    digitalWrite(m_led_pin, m_led_state);
-  }
-private:
-  uint8_t m_led_pin;
-  bool m_led_state = false;
-};
-
-void print_something(){
-  Serial.println("Hello World");
+void toggleLed1() {
+  led1State = !led1State;
+  digitalWrite(LED_PIN, led1State);
 }
 
-unsigned long previousMillis = 0;
-const unsigned long LED_INTERVAL = 500;  // blink interval in ms
-bool ledState = false;
+void toggleLed2() {
+  led2State = !led2State;
+  digitalWrite(LED2_PIN, led2State);
+}
 
-TimedEvent led_timer;
-toggle_led led_toggle(12);
+// ---------- Two TimedEvent instances ----------
+TimedEvent led1_timer(500, toggleLed1);   // LED_PIN  blinks every 500 ms
+TimedEvent led2_timer(1000, toggleLed2);  // LED2_PIN blinks every 1000 ms
+
+// =====================================================================
+//  Hardware Timer2 — CTC mode, 1 ms interrupt (16 MHz / 64 / 250)
+// =====================================================================
+
+// ---------- Single ISR ticks all timers ----------
+ISR(TIMER2_COMPA_vect) {
+  led1_timer.tick();
+  led2_timer.tick();
+}
 
 void setup() {
-  // put your setup code here, to run once:
-  pinMode(12, OUTPUT);
-  Serial.begin(9600);
-  led_timer.set_timed_event(500, [](){led_toggle.callback();});
-  Serial.begin(115200);
-  pinMode(SINE_OUT_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
+  pinMode(LED2_PIN, OUTPUT);
+  setupTimer2();
 }
 
 void loop() {
-  // Non-blocking LED blink
-  unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= LED_INTERVAL) {
-    previousMillis = currentMillis;
-    ledState = !ledState;
-    digitalWrite(LED_PIN, ledState ? HIGH : LOW);
-  }
-
-  // Sine wave output
-  int value = (int)(127.5 + 127.5 * sin(angle));  // map sin(-1..1) to 0..255
-  analogWrite(SINE_OUT_PIN, value);
-  angle += 0.0245;          // 2*PI / 256 ≈ 0.0245 rad per step
-  if (angle >= TWO_PI) {
-    angle -= TWO_PI;
-  }
-
-  // Serial print: $sineValue ledState;
-  Serial.print("$");
-  Serial.print(value);
-  Serial.print(" ");
-  Serial.print((int)ledState);
-  Serial.println(";");
-
-  delay(10);                // 10 ms delay for serial plotter
-}
-  led_timer.check_event();
-  // put your main code here, to run repeatedly:
+  // Everything is handled by the ISR — nothing to do here
 }
