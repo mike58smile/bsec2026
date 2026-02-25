@@ -50,7 +50,8 @@ toggle_led led_toggle(12);
 void setup() {
   // put your setup code here, to run once:
   pinMode(12, OUTPUT);
-  led_timer.set_timed_event(1000, print_something);
+  Serial.begin(9600);
+  led_timer.set_timed_event(500, [](){led_toggle.callback();});
 }
 
 void loop() {
