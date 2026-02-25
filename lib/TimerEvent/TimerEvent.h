@@ -24,7 +24,13 @@ private:
     static void setupTimer1();
     static void timerISR();
     
+    // Overflow detection
+    static bool hasOverflowed(unsigned long current, unsigned long previous);
+    
 public:
+    // ISR-safe timing using timer counter instead of micros()
+    static volatile uint32_t tickCount;
+    
     // Constructor
     TimerEvent(void (*func)(), unsigned long period_microseconds);
     
@@ -38,6 +44,10 @@ public:
     // Static methods for timer management
     static void initialize();
     static void update();
+    
+    // Cleanup
+    ~TimerEvent();
+    static void cleanup();
 };
 
 #endif // TIMER_EVENT_H

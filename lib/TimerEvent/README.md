@@ -34,26 +34,30 @@ void setup() {
 
 void loop() {
     // Your main code here
-    // Timer runs in background via interrupts
+    // Timer runs automatically in background via interrupts
 }
 ```
 
 ## API Reference
 
 ### Constructor
+
 ```cpp
 TimerEvent(void (*func)(), unsigned long period_microseconds)
 ```
+
 - `func`: Function pointer to be called periodically
 - `period_microseconds`: Period in microseconds (min 1000 for 1ms)
 
 ### Control
+
 ```cpp
 timer(RUN);   // Start the timer
 timer(STOP);  // Stop the timer
 ```
 
 ### Status
+
 ```cpp
 bool enabled = timer.isEnabled();           // Check if timer is running
 unsigned long period = timer.getPeriod();   // Get period in microseconds
@@ -73,4 +77,4 @@ unsigned long period = timer.getPeriod();   // Get period in microseconds
 
 ## Example
 
-See `src/main.cpp` for a complete example demonstrating multiple timers with different periods.
+See `lib/TimerEvent/showcase.cpp` for a complete example demonstrating multiple timers with different periods.
