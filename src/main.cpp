@@ -19,7 +19,7 @@ void ledCallback() {
 }
 
 CapacitorCharger capacitor(CAP_SENSOR_PIN, CAP_PWM_PIN, CUR_SENSOR_I2C_ADDR);
-TimerEvent ledTimer(ledCallback, 100); // 1 second timer for LED updates
+TimerEvent ledTimer(ledCallback, 500); // 1 second timer for LED updates
 
 
 State current_state = State::CHARGING;
@@ -71,6 +71,7 @@ void loop()
             if (capVoltage > U_Wake) {
                 current_state = State::WAKEUP;
             }
+            motor.stop();
             statusLED.setSteady(255, 0, 0);
             break;
         case State::WAKEUP:
@@ -93,21 +94,21 @@ void loop()
                 current_state = State::ECO;
             }
             motor.eco_power();
-            statusLED.setAlternating(0, 0, 255, 255, 0, 0, 200);
+            statusLED.setAlternating(0, 0, 255, 255, 0, 0, 1000);
             break;
         case State::ECO:
             if (capVoltage < U_Eco) {
                 current_state = State::SURVIVAL;
             }
             motor.full_power();
-            statusLED.setBlinking(255, 255, 0, 200);
+            statusLED.setBlinking(255, 255, 0, 1000);
             break;
         case State::SURVIVAL:
             if (capVoltage < U_Survival) {
                 current_state = State::SLEEP;
             }
             motor.full_power();
-            statusLED.setSteady(255, 0, 0);
+            statusLED.breathing(255, 0, 0, 1000);
             break;
         case State::SLEEP:
             motor.stop();
