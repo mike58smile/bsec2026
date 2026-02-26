@@ -50,7 +50,7 @@ void loop()
     const unsigned long PRINT_INTERVAL = 500; // Print every 500ms
 
     float capVoltage = capacitor.getVoltage();
-    int status = capacitor.charge(U_Cap_Max, 0.5, 4.8);
+    int status = capacitor.charge(U_Cap_Max, 0.750, 4.8);
 
     // Print data for plotting
     if (millis() - last_print >= PRINT_INTERVAL) {

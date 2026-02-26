@@ -11,7 +11,7 @@ public:
     
     // Main charging function - returns status
     // 0 = charging, 1 = complete, -1 = error
-    int charge(float maxVoltage = 5.4, float currentLimit = 0.5, float panelVoltage = 4.8);
+    int charge(float maxVoltage = 5.41, float currentLimit = 0.750, float panelVoltage = 4.8);
     
     // Getters
     float getVoltage();        // Returns capacitor voltage
