@@ -127,11 +127,15 @@ void CapacitorCharger::controlPwm() {
 }
 
 float CapacitorCharger::readCapacitorVoltage() {
+#ifdef MOCK_SENSOR
+    return _sensor->get_mock_capacitor_voltage();
+#else
     // Store current PWM value
     int currentPwm = _pwmValue;
     
     // Turn MOSFET ON briefly to measure capacitor voltage
-    analogWrite(_pwmPin, 255);  // Full ON
+    //analogWrite(_pwmPin, 255);  // Full ON
+    digitalWrite(_pwmPin, HIGH);
     delay(5);  // Let voltage stabilize
     
     // Voltage divider: 750Ω to ground, 3kΩ to capacitor
@@ -143,7 +147,10 @@ float CapacitorCharger::readCapacitorVoltage() {
     float actualVoltage = raw * 25.0;         // Convert to actual voltage
     
     // Restore original PWM value
+    digitalWrite(_pwmPin, LOW);
+    delay(10);
     analogWrite(_pwmPin, currentPwm);
     
     return actualVoltage;
+#endif
 }

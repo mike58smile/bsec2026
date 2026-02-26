@@ -35,7 +35,7 @@ void setup() {
     pinMode(LVR_PIN, INPUT);
     
     // CSV header for plotting
-    Serial.println("State,Voltage,U_Wake,U_Eco,U_Survival");
+    Serial.println("Status: State, CapVoltage(V), PanelVoltage(V), Current(mA), Power(mW), U_Wake(V), U_Eco(V), U_Survival(V)");
 }
 
 
@@ -44,20 +44,29 @@ void loop()
     static unsigned long last_print = 0;
     const unsigned long PRINT_INTERVAL = 500; // Print every 500ms
 
-    float capVoltage = capacitor.getVoltage();
-    int status = capacitor.charge(U_Cap_Max, 0.750, 4.8);
+    static float capVoltage = 0;
+    int status = capacitor.charge(U_Cap_Max, 0.75, 4.8);
 
     // Print data for plotting
     if (millis() - last_print >= PRINT_INTERVAL) {
+        capVoltage = capacitor.getVoltage(); // Only measure when printing
+        Serial.print("State:");
         Serial.print(static_cast<int>(current_state));
-        Serial.print(",");
+        Serial.print(", CapVoltage:");
         Serial.print(capVoltage, 2);
-        Serial.print(",");
+        Serial.print("V, PanelVoltage:");
+        Serial.print(capacitor.getPanelVoltage(), 2);
+        Serial.print("V, Current:");
+        Serial.print(capacitor.getCurrent(), 0);
+        Serial.print("mA, Power:");
+        Serial.print(capacitor.getPanelVoltage() * capacitor.getCurrent(), 0);
+        Serial.print("mW, U_Wake:");
         Serial.print(U_Wake, 2);
-        Serial.print(",");
+        Serial.print("V, U_Eco:");
         Serial.print(U_Eco, 2);
-        Serial.print(",");
-        Serial.println(U_Survival, 2);
+        Serial.print("V, U_Survival:");
+        Serial.print(U_Survival, 2);
+        Serial.println("V");
         last_print = millis();
     }
 

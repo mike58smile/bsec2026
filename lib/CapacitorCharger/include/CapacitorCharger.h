@@ -1,7 +1,12 @@
 #pragma once
 
 #include <Arduino.h>
+
+#ifdef MOCK_SENSOR
+#include "power_sensor_mock.h"
+#else
 #include "power_sensor.h"
+#endif
 
 class CapacitorCharger {
 public:
