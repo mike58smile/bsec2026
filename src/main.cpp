@@ -1,8 +1,8 @@
 #include "TimerEvent.h"
 #include <Arduino.h>
-#include <INA226.h>
+#include "power_sensor.h"
 
-INA226 INA(0x40);
+CurrentVoltageSensor sensor(0x40);  // I2C address 0x40
 
 
 // LED pins (Arduino Uno built-in LED and pin 12)
@@ -13,13 +13,12 @@ INA226 INA(0x40);
 void setup() {
     // Initialize serial communication
     Serial.begin(9600);
+    Serial.println("Starting INA226 example...");
 
     Wire.begin();
-    if (!INA.begin() )
-    {
+    if (!sensor.initialize()) {
         Serial.println("could not connect. Fix and Reboot");
     }
-    INA.setMaxCurrentShunt(1, 0.002);
 
     // Print CSV header
     Serial.println("BUS,SHUNT,CURRENT,POWER");
@@ -28,13 +27,13 @@ void setup() {
 
 void loop()
 {
-    Serial.print(INA.getBusVoltage(), 3);
+    sensor.update();
+    
+    Serial.print(sensor.get_voltage(), 3);
     Serial.print(",");
-    Serial.print(INA.getShuntVoltage_mV(), 3);
+    Serial.print(sensor.get_current(), 3);
     Serial.print(",");
-    Serial.print(INA.getCurrent_mA(), 3);
-    Serial.print(",");
-    Serial.print(INA.getPower_mW(), 3);
+    Serial.print(sensor.get_power_mW(), 3);
     Serial.println();
     delay(100);
 }
