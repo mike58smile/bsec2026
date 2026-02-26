@@ -112,9 +112,10 @@ void loop()
             break;
         case State::SLEEP:
             motor.stop();
-            set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-            sleep_enable();
-            sleep_cpu();
+            statusLED.off();
+            if (capVoltage > U_Wake) {
+                current_state = State::WAKEUP;
+            }
             break;
     }
     delay(100); // Main loop delay to reduce CPU load

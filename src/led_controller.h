@@ -21,7 +21,9 @@ public:
     }
 
     void off() {
-        setColor(0, 0, 0);
+        digitalWrite(_rPin, LOW);
+        digitalWrite(_gPin, LOW);
+        digitalWrite(_bPin, LOW);
     }
 
     void callback() {
