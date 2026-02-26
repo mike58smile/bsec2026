@@ -1,6 +1,5 @@
 #include "TimerEvent.h"
 #include <Arduino.h>
-#include "power_sensor.h"
 #include "pinout.h"
 #include "fsm.h"
 #include "constants.h"
