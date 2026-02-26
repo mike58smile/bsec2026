@@ -103,19 +103,22 @@ void CapacitorCharger::controlPwm() {
         // Current too high - reduce PWM
         _pwmValue = max(0, _pwmValue - 5);
     }
-    else if (current_mA < _currentLimit * 800) {
+    else {
         // Current below limit - adjust for MPPT
         if (panelError > 0.1) {
-            // Panel voltage too low - increase PWM
-            _pwmValue = min(255, _pwmValue + 3);
-        }
-        else if (panelError < -0.1) {
-            // Panel voltage too high - decrease PWM
+            // Panel voltage too low - decrease PWM to reduce load
             _pwmValue = max(0, _pwmValue - 3);
         }
+        else if (panelError < -0.1) {
+            // Panel voltage too high - increase PWM to load panel more
+            _pwmValue = min(255, _pwmValue + 3);
+        }
         else {
-            // Panel voltage at target - increase PWM slowly
-            _pwmValue = min(255, _pwmValue + 1);
+            // Panel voltage at target - maintain PWM
+            // Small adjustments based on current
+            if (current_mA < 100) {
+                _pwmValue = min(255, _pwmValue + 1);
+            }
         }
     }
     
@@ -124,6 +127,23 @@ void CapacitorCharger::controlPwm() {
 }
 
 float CapacitorCharger::readCapacitorVoltage() {
-    // Using your existing voltage divider multiplier
-    return (analogRead(_capPin) / 1023.0) * 25.0;
+    // Store current PWM value
+    int currentPwm = _pwmValue;
+    
+    // Turn MOSFET ON briefly to measure capacitor voltage
+    analogWrite(_pwmPin, 255);  // Full ON
+    delay(5);  // Let voltage stabilize
+    
+    // Voltage divider: 750Ω to ground, 3kΩ to capacitor
+    // Ratio = 750 / (3000 + 750) = 750 / 3750 = 0.2
+    // To get actual voltage: (analogRead / 1023.0) * 5.0 / 0.2
+    // Simplified: (analogRead / 1023.0) * 25.0
+    
+    float raw = analogRead(_capPin) / 1023.0;  // 0-1 range
+    float actualVoltage = raw * 25.0;         // Convert to actual voltage
+    
+    // Restore original PWM value
+    analogWrite(_pwmPin, currentPwm);
+    
+    return actualVoltage;
 }
