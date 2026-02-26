@@ -14,12 +14,8 @@
 
 RGBLED_Controller statusLED(RGB_R_PIN, RGB_G_PIN, RGB_B_PIN); // RGB LED on pins 9, 10, 11
 
-void ledCallback() {
-    statusLED.callback();
-}
 
 CapacitorCharger capacitor(CAP_SENSOR_PIN, CAP_PWM_PIN, CUR_SENSOR_I2C_ADDR);
-TimerEvent ledTimer(ledCallback, 500); // 1 second timer for LED updates
 
 
 State current_state = State::CHARGING;
@@ -37,7 +33,6 @@ void setup() {
     motor.begin();
     statusLED.begin();
     pinMode(LVR_PIN, INPUT);
-    ledTimer(RUN);
     
     // CSV header for plotting
     Serial.println("State,Voltage,U_Wake,U_Eco,U_Survival");
@@ -72,7 +67,7 @@ void loop()
                 current_state = State::WAKEUP;
             }
             motor.stop();
-            statusLED.setSteady(255, 0, 0);
+            statusLED.set(255, 0, 0);
             break;
         case State::WAKEUP:
             if (status == 1) {
@@ -81,34 +76,34 @@ void loop()
             if (digitalRead(LVR_PIN) == LOW) {
                 current_state = State::TURBO;
             }
-            statusLED.setSteady(255, 165, 0);
+            statusLED.set(255, 165, 0);
             break;
         case State::READY:
             if (digitalRead(LVR_PIN) == LOW) {
                 current_state = State::TURBO;
             }
-            statusLED.setSteady(0, 255, 0);
+            statusLED.set(0, 255, 0);
             break;
         case State::TURBO:
             if (capVoltage < U_Turbo) {
                 current_state = State::ECO;
             }
             motor.eco_power();
-            statusLED.setAlternating(0, 0, 255, 255, 0, 0, 1000);
+            statusLED.set(0, 0, 255);
             break;
         case State::ECO:
             if (capVoltage < U_Eco) {
                 current_state = State::SURVIVAL;
             }
             motor.full_power();
-            statusLED.setBlinking(255, 255, 0, 1000);
+            statusLED.set(255, 255, 0);
             break;
         case State::SURVIVAL:
             if (capVoltage < U_Survival) {
                 current_state = State::SLEEP;
             }
             motor.full_power();
-            statusLED.breathing(255, 0, 0, 1000);
+            statusLED.set(125, 0, 0);
             break;
         case State::SLEEP:
             motor.stop();
