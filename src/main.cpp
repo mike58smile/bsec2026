@@ -40,6 +40,9 @@ void loop()
 {
     static unsigned long last_print = 0;
     const unsigned long PRINT_INTERVAL = 500; // Print every 500ms
+    static unsigned long last_flash = 0;
+    const unsigned long FLASH_INTERVAL = 200; // Flash every 200ms
+    static bool flash_state = false;
 
     static float capVoltage = 0;
     int status = capacitor.charge(U_Cap_Max, 0.75, 4.8);
@@ -95,7 +98,18 @@ void loop()
                 current_state = State::ECO;
             }
             motor.eco_power();
-            statusLED.set(0, 0, 255);
+            
+            // Police car flashing: red/blue alternating every 200ms
+            if (millis() - last_flash >= FLASH_INTERVAL) {
+                flash_state = !flash_state;
+                last_flash = millis();
+            }
+            
+            if (flash_state) {
+                statusLED.set(255, 0, 0); // Red
+            } else {
+                statusLED.set(0, 0, 255); // Blue
+            }
             break;
         case State::ECO:
             if (capVoltage < U_Eco) {
