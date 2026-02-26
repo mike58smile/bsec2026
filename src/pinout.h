@@ -9,3 +9,4 @@
 #define CUR_SENSOR_I2C_ADDR 0x40
 #define SOLAR_PWN_PIN 9
 #define MOTOR_PWM_PIN 11
+#define DISPLAY_RELAY_PIN 8

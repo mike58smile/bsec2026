@@ -39,6 +39,6 @@ public:
 
 private:
     INA226 m_ina;
-    RingBuffer<float, 10> m_current_buffer;
-    RingBuffer<float, 10> m_voltage_buffer;
+    RingBuffer m_current_buffer;
+    RingBuffer m_voltage_buffer;
 };
