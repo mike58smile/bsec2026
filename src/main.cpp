@@ -42,7 +42,10 @@ void loop()
     const unsigned long PRINT_INTERVAL = 500; // Print every 500ms
     static unsigned long last_flash = 0;
     const unsigned long FLASH_INTERVAL = 200; // Flash every 200ms
+    static unsigned long last_eco_flash = 0;
+    const unsigned long ECO_FLASH_INTERVAL = 500; // Eco flash every 500ms
     static bool flash_state = false;
+    static bool eco_flash_state = false;
 
     static float capVoltage = 0;
     int status = capacitor.charge(U_Cap_Max, 0.75, 4.8);
@@ -116,7 +119,18 @@ void loop()
                 current_state = State::SURVIVAL;
             }
             motor.full_power();
-            statusLED.set(255, 255, 0);
+            
+            // Yellow flashing every 500ms
+            if (millis() - last_eco_flash >= ECO_FLASH_INTERVAL) {
+                eco_flash_state = !eco_flash_state;
+                last_eco_flash = millis();
+            }
+            
+            if (eco_flash_state) {
+                statusLED.set(255, 255, 0); // Yellow
+            } else {
+                statusLED.off(); // Off
+            }
             break;
         case State::SURVIVAL:
             if (capVoltage < U_Survival) {
