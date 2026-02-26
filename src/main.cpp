@@ -18,7 +18,7 @@ void ledCallback() {
     statusLED.callback();
 }
 
-CapacitorCharger capacitor;
+CapacitorCharger capacitor(CAP_SENSOR_PIN, CAP_PWM_PIN, CUR_SENSOR_I2C_ADDR);
 TimerEvent ledTimer(ledCallback, 100); // 1 second timer for LED updates
 
 

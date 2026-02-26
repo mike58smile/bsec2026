@@ -10,7 +10,7 @@ MotorController(uint8_t pwmPin = MOTOR_PWM_PIN) : _pwmPin(pwmPin) {}
 
 void begin() {
     pinMode(_pwmPin, OUTPUT);
-    set_power(0); // Ensure motor is off at start
+    digitalWrite(_pwmPin, LOW); // Ensure motor is off at start
 }
 
 void set_power(byte power) {
@@ -26,7 +26,8 @@ void full_power() {
 }
 
 void stop() {
-    set_power(0);
+    digitalWrite(_pwmPin, LOW);
+
 }
 
 private:
