@@ -7,12 +7,10 @@
 
 #include "CapacitorCharger.h"
 #include <avr/sleep.h>
-#include "TimerEvent.h"
 #include "led_controller.h"
 
 
-RGBLED_Controller statusLED(RGB_R_PIN, RGB_G_PIN, RGB_B_PIN); // RGB LED on pins 9, 10, 11
-
+RGBLED_Controller statusLED(RGB_R_PIN, RGB_G_PIN, RGB_B_PIN); // RGB LED on pins 3, 5, 6
 
 CapacitorCharger capacitor(CAP_SENSOR_PIN, CAP_PWM_PIN, CUR_SENSOR_I2C_ADDR);
 

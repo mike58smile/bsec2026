@@ -1,6 +1,6 @@
 #pragma once
 
-#define RGB_R_PIN 10
+#define RGB_R_PIN 3
 #define RGB_G_PIN 5
 #define RGB_B_PIN 6
 
@@ -8,7 +8,7 @@
 
 #define CUR_SENSOR_I2C_ADDR 0x40
 #define DISPLAY_I2C_ADDR 0x3C
-#define MOTOR_PWM_PIN 3
+#define MOTOR_PWM_PIN 10
 
 #define CAP_SENSOR_PIN A0
 #define CAP_PWM_PIN 9
