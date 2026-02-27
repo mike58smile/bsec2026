@@ -57,6 +57,7 @@ void loop()
         Serial.print(U_Wake, 2);
         Serial.print(",");
         Serial.print(capacitor.getPanelVoltage(), 2);
+        Serial.print(capacitor.getPanelVoltage(), 2);
         Serial.print(",");
         Serial.println(capacitor.getCurrent(), 2);
         last_print = currentMillis;
