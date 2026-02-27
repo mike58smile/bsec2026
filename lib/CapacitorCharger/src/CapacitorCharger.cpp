@@ -36,7 +36,7 @@ int CapacitorCharger::charge(float maxVoltage, float currentLimit, float panelVo
     // Start charging if not already
     if (!_charging && !_complete) {
         _charging = true;
-        _pwmValue = 50; // Start with low PWM
+        _pwmValue = 150; // Start with high PWM for FULL BLAST charging
     }
     
     // Control PWM for MPPT + current limiting
@@ -92,50 +92,23 @@ void CapacitorCharger::controlPwm() {
         return;
     }
     
-    float current_mA = getCurrent();
-    float panelVoltage = getPanelVoltage();
-    
-    // MPPT: Keep panel voltage at target (80% of Voc)
-    float panelError = _panelTargetVoltage - panelVoltage;
-    
-    // Current limiting logic
-    if (current_mA > _currentLimit * 1000) {
-        // Current too high - reduce PWM
-        _pwmValue = max(0, _pwmValue - 5);
-    }
-    else {
-        // Current below limit - adjust for MPPT
-        if (panelError > 0.1) {
-            // Panel voltage too low - decrease PWM to reduce load
-            _pwmValue = max(0, _pwmValue - 3);
-        }
-        else if (panelError < -0.1) {
-            // Panel voltage too high - increase PWM to load panel more
-            _pwmValue = min(255, _pwmValue + 3);
-        }
-        else {
-            // Panel voltage at target - maintain PWM
-            // Small adjustments based on current
-            if (current_mA < 100) {
-                _pwmValue = min(255, _pwmValue + 1);
-            }
-        }
-    }
+    // TEMPORARY: FULL BLAST charging - bypass MPPT for testing
+    _pwmValue = 255; // Maximum PWM
     
     // Apply PWM
     analogWrite(_pwmPin, _pwmValue);
 }
 
 float CapacitorCharger::readCapacitorVoltage() {
-#ifdef MOCK_SENSOR
-    return _sensor->get_mock_capacitor_voltage();
-#else
+//#ifdef MOCK_SENSOR
+    //return _sensor->get_mock_capacitor_voltage();
+//#else
     // Store current PWM value
     int currentPwm = _pwmValue;
     
     // Turn MOSFET ON briefly to measure capacitor voltage
-    //analogWrite(_pwmPin, 255);  // Full ON
-    digitalWrite(_pwmPin, HIGH);
+    analogWrite(_pwmPin, 255);  // Full ON
+    //digitalWrite(_pwmPin, HIGH);
     delay(5);  // Let voltage stabilize
     
     // Voltage divider: 750Ω to ground, 3kΩ to capacitor
@@ -147,10 +120,10 @@ float CapacitorCharger::readCapacitorVoltage() {
     float actualVoltage = raw * 25.0;         // Convert to actual voltage
     
     // Restore original PWM value
-    digitalWrite(_pwmPin, LOW);
-    delay(10);
+    //digitalWrite(_pwmPin, LOW);
+    delay(5);
     analogWrite(_pwmPin, currentPwm);
     
     return actualVoltage;
-#endif
+//#endif
 }

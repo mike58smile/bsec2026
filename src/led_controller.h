@@ -30,6 +30,39 @@ public:
         setColor(r, g, b);
     }
 
+    void policeFlash(unsigned long currentMillis) {
+        static unsigned long lastFlash = 0;
+        static bool isRed = true;
+        
+        if (currentMillis - lastFlash >= 200) {
+            if (isRed) {
+                setColor(255, 0, 0);  // Red
+            } else {
+                setColor(0, 0, 255);  // Blue
+            }
+            isRed = !isRed;
+            lastFlash = currentMillis;
+        }
+    }
+
+    void breatheRed(unsigned long currentMillis) {
+        static unsigned long lastUpdate = 0;
+        static int brightness = 0;
+        static int direction = 1;
+        
+        if (currentMillis - lastUpdate >= 20) {  // Update every 20ms for smooth breathing
+            brightness += direction * 2;
+            if (brightness >= 125) {
+                brightness = 125;
+                direction = -1;
+            } else if (brightness <= 0) {
+                brightness = 0;
+                direction = 1;
+            }
+            setColor(brightness, 0, 0);
+            lastUpdate = currentMillis;
+        }
+    }
 
 private:
     uint8_t _rPin;
