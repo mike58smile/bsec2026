@@ -44,20 +44,20 @@ void loop()
     static unsigned long last_print = 0;
     const unsigned long PRINT_INTERVAL = 500; // Print every 500ms
 
-    float capVoltage = capacitor.getVoltage();
     int status = capacitor.charge(U_Cap_Max, 0.750, 4.8);
-
+    float capVoltage;
     // Print data for plotting
     if (millis() - last_print >= PRINT_INTERVAL) {
+        capVoltage = capacitor.getVoltage();
         Serial.print(static_cast<int>(current_state));
         Serial.print(",");
         Serial.print(capVoltage, 2);
         Serial.print(",");
         Serial.print(U_Wake, 2);
         Serial.print(",");
-        Serial.print(U_Eco, 2);
+        Serial.print(capacitor.getPanelVoltage(), 2);
         Serial.print(",");
-        Serial.println(U_Survival, 2);
+        Serial.println(capacitor.getCurrentc(), 2);
         last_print = millis();
     }
 
